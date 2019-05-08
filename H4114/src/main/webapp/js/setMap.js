@@ -73,7 +73,7 @@ function getAssemblyUser()
     }).done(function (data) {
         console.log(data);
         theAssembly = data.Assembly;
-
+        initButtons();
     });
 }
 
@@ -257,7 +257,7 @@ function initMap(latitude, longitude, participants) {
         attachPseudo(markers[i], "" + i + "");
     }
     
-    initButtons();
+    
 }
 
 
