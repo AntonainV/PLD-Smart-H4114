@@ -29,21 +29,7 @@ public class Participant {
     double longitude;
     double latitude;
     
-    // peut etre à enlever
-    private static HashMap<Integer, Participant> participants = new HashMap<Integer, Participant>();
     
-    public HashMap<Integer, Participant> getParticipant() {
-        return participants;
-    }
-
-    public static void addSurvey(Integer idUser, Participant participant) {
-        participants.put(idUser, participant);
-    }
-    
-    public static void removeSurvey(Participant participant) {
-        int idUser = participant.getUser().getId();
-        participants.remove(idUser);
-    }
 
     public Participant(User user, Assembly assembly, double latitude, double longitude, int status) {
         this.status = status;
@@ -178,7 +164,7 @@ public class Participant {
             Integer idP = rs.getInt("id_participant");
             Integer idU =  rs.getInt("id_user");
             Integer idA = rs.getInt("id_assembly");
-            Assembly assembly = Assembly.getAssembly(conn, idU);
+            Assembly assembly = Assembly.getAssembly(conn, idA);
             int status =  rs.getInt("status");
             double latitude =  rs.getDouble("latitude");
             double longitude =  rs.getDouble("longitude");

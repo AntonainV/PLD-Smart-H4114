@@ -58,6 +58,8 @@ public class UserServlet extends HttpServlet {
         switch(action){
             case "clearData":
                 user = (User)request.getSession().getAttribute("user");
+                if(user == null)
+                    break;
                 Integer id = user.getId();
                 System.out.println("In Clear");
                 System.out.println(id);
@@ -95,11 +97,7 @@ public class UserServlet extends HttpServlet {
                         Gson gson=new GsonBuilder().setPrettyPrinting().create();
                         if(user != null){
                             
-                            participant = Participant.GetParticipantUser(conn,user);
-                            if (participant != null)
-                            {
-                                request.getSession().setAttribute("participant", participant);
-                            }
+                           
                             
                             connect.addProperty("connect", "successful");
                             request.getSession().setAttribute("user", user);
