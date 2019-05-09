@@ -44,7 +44,7 @@ function connectListen(number, name){
         console.log(event);
     };
     socketListen.onmessage = function (event) {
-        errorMsg(event.data);
+       // errorMsg(event.data);
         console.log(event.data);
         var json = JSON.parse(event.data);
         if(json.type === 'candidate') {
@@ -78,7 +78,7 @@ function handleVideoOfferMsg(msg) {
             name: listenName,
             sdp: pcListen.localDescription
         }; 
-        errorMsg(msgSend);
+        //errorMsg(msgSend);
         sendMessageListen(msgSend);
         console.log(pcListen);
     });
@@ -148,11 +148,11 @@ function handleICEGatheringStateChangeEventListen(event) {
 function handleTrackEventListen(event) {
     const video = document.getElementById('video');
     console.log("ashoidiasipdfsapfopapasfjasfpasfopaspasfoafjoaspfosajasajsfajsfopasjfodjapsdjopasjdpoj");
-    errorMsg("ashoidiasipdfsapfopapasfjasfpasfopaspasfoafjoaspfosajasajsfajsfopasjfodjapsdjopasjdpoj");
+    //errorMsg("ashoidiasipdfsapfopapasfjasfpasfopaspasfoafjoaspfosajasajsfajsfopasjfodjapsdjopasjdpoj");
     video.srcObject = event.streams[0];
     console.log(event.streams.length);
     console.log(document.getElementById("video").srcObject);
-    errorMsg(document.getElementById("video").srcObject.id);
+    //errorMsg(document.getElementById("video").srcObject.id);
 }
 
 function handleRemoveTrackEventListen(event) {
