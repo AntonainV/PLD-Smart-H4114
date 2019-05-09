@@ -82,7 +82,7 @@ function errorMsg(msg, error) {
 }
 
 function connectStart(number){
-    socket = new WebSocket("ws://192.168.137.1:8084/H4114/video/"+number+"/start/" + name);
+    socket = new WebSocket("wss://192.168.137.1:8443/H4114/video/"+number+"/start/" + name);
     socket.onopen = function (event) {
         identity = 'caller';
         console.log("/!\\ Connexion serveur");

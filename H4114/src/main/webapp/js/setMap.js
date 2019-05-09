@@ -9,24 +9,26 @@ function createPositions(participants) {
 
     positions= [];
     positions.push({location: {latitude: latitude, longitude: longitude}});
+    
+    var id_assembly = participants[0].id_assembly;
+    var title = participants[0].title;
+    assemblyTable.push({id_assembly,title});
+            
+    
     if (participants)
     {
         for (var i = 0; i< participants.length; i++)
         {
-            
             var lat = participants[i].latitude;
             var long = participants[i].longitude;
             positions.push({location: {latitude: lat, longitude: long}});
-            
-            
-
             var id_assembly = participants[i].id_assembly;
             var title = participants[i].title;
             console.log(id_assembly);
-            
             assemblyTable.push({id_assembly,title});
         }
     }
+
 }
 
 function getLocation() {
@@ -89,7 +91,6 @@ function closeCreate() {
     document.getElementById("createAssembly").style.display = "none";
 }
 
-
 function createAssembly() {
     $('#message').text("");
     var title = $('#title').val();
@@ -143,14 +144,13 @@ function quitAssembly()
          theAssembly = null;
          initButtons();
     });
-    
 }
 
 
 function initButtons()
 {
     $("#rallyDiv").remove();
-    if (theAssembly === null || jQuery.isEmptyObject(theAssembly))
+    if (!theAssembly)
     {
         var rallyDiv = document.createElement('div');
         var createRallyDiv = document.createElement('div');
@@ -216,11 +216,9 @@ function initButtons()
         rallyDiv.appendChild(createRallyDiv);
         rallyDiv.appendChild(joinRallyDiv);
         map.controls[google.maps.ControlPosition.TOP_LEFT].push(rallyDiv);
- 
-        
-        
     }
 }
+
 function initMap(latitude, longitude, participants) {
     var location = {lat: latitude, lng: longitude};
     
@@ -275,14 +273,13 @@ function dbscan() {
     
     for (var i = 1; i < assemblyTable.length; i++)
     {
-        if(cluster[i] == clusterUser)
+        if(cluster[i] === clusterUser)
         {
             if(!assemblyInterested.has(assemblyTable[i].id_assembly))
             {
                 assemblyInterested.set(assemblyTable[i].id_assembly, assemblyTable[i]);
             }
         }
-        
     }
 
     

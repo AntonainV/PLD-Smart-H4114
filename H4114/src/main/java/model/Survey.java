@@ -29,6 +29,8 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -48,8 +50,6 @@ public class Survey {
     private String question;
     private ArrayList<String> choices;
     private Map<String, Integer> responses;
-    private PrivateKey privateKey;
-    private PublicKey publicKey;
     int contestation;
     int timeMillis;
     private Set<byte[]> participants;
@@ -57,12 +57,21 @@ public class Survey {
 
     private ArrayList<Block> blockchain;
 
+    public Assembly getAssembly() {
+        return assembly;
+    }
+
     public HashMap<Integer, Survey> getSurveys() {
         return surveys;
     }
 
     public static void addSurvey(Integer idAssembly, Survey survey) {
         surveys.put(idAssembly, survey);
+    }
+    
+    public static void removeSurvey(Survey survey) {
+        int idAssembly = survey.getAssembly().getId();
+        surveys.remove(idAssembly);
     }
 
     public static Survey getSurvey(Integer idAssembly) {
@@ -96,20 +105,8 @@ public class Survey {
         this.timeMillis = Integer.parseInt(timeMillis);
         this.choices = new ArrayList<>();
         this.participants = new HashSet<>();
-
-        try {
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-            kpg.initialize(2048);
-            KeyPair kp = kpg.generateKeyPair();
-            this.publicKey = kp.getPublic();
-            this.privateKey = kp.getPrivate();
-            this.blockchain = new ArrayList<>();
-            this.responses = new HashMap<>();
-            this.publicKey = kp.getPublic();
-
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
+        this.blockchain = new ArrayList<>();
+        this.responses = new HashMap<>();
         surveys.put(this.id, this);
     }
 
@@ -126,7 +123,8 @@ public class Survey {
                         s.wait(timeMillis);
                         s.stat = 2;
                         s.notifyAll();
-
+                        s.updateResults();
+                        s.notifyAll();
                         System.out.println("END");
 
                     } catch (Exception e) {
@@ -137,12 +135,13 @@ public class Survey {
 
     }
 
-    public JsonObject toJson(boolean withPk) {
+    public JsonObject toJson() {
         JsonObject json = new JsonObject();
         json.addProperty("id_survey", this.id);
         json.addProperty("question", this.question);
         json.addProperty("choices", this.getChoices());
         json.addProperty("state", this.stat);
+        json.addProperty("duration", this.timeMillis);
         JsonArray responsesV = new JsonArray();
         if (this.stat == 2) {
             Set keys = this.responses.keySet();
@@ -159,9 +158,7 @@ public class Survey {
         }
         json.add("responses", responsesV);
 
-        if (withPk) {
-            json.addProperty("publicKey", Base64.getEncoder().encodeToString(this.getPublicKey()));
-        }
+
 
         return json;
     }
@@ -191,12 +188,10 @@ public class Survey {
 
     public String addAnswerVote(String data, Participant paticipant) {
         String pseudo = paticipant.getUser().getPseudo();
-
+        System.out.println("??? " + data);
         try {
-            Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.ENCRYPT_MODE, this.privateKey);
             MessageDigest mDigest = MessageDigest.getInstance("SHA1");
-            byte[] addressP = mDigest.digest(cipher.doFinal(pseudo.getBytes()));
+            byte[] addressP = mDigest.digest(pseudo.getBytes());
             if (this.participants.contains(addressP)) {
                 return "";
             }
@@ -207,7 +202,7 @@ public class Survey {
             }
 
             if (this.stat == 1) {
-                Block block = new Block(this, data, lastHash, this.publicKey);
+                Block block = new Block(this, lastHash, data);
                 this.blockchain.add(block);
                 this.participants.add(addressP);
                 return block.getHash();
@@ -234,11 +229,28 @@ public class Survey {
         this.contestation++;
     }
 
-    @Override
-    public String toString() {
-        return "Sondage{" + "question=" + question
-                + ", responses=" + responses
-                + ", publicKey=" + publicKey + '}';
+   
+    
+    public void updateResults()
+    {
+        for (int i = 0; i < this.blockchain.size(); i++) {
+            Block block = this.blockchain.get(i);
+            
+            
+            String choice = block.getDataString();
+            
+            System.out.println("CHHHHHOICe " + choice);
+
+            if (responses.containsKey(choice)) {
+                Integer nb = responses.get(choice) + 1;
+                responses.put(choice, nb);
+            } else {
+                Integer nb = responses.getOrDefault("", 0) + 1;
+                responses.put("", nb);
+
+                System.out.println("White vote");
+            }
+        }
     }
 
     public void showClearResults(PrintStream stream) {
@@ -247,7 +259,9 @@ public class Survey {
         for (int i = 0; i < this.blockchain.size(); i++) {
             stream.println("Vote " + i + " : ");
             Block block = this.blockchain.get(i);
-            String choice = block.decrypt(this.privateKey);
+            String choice = block.getData();
+            
+            System.out.println("CHHHHHOICe " + choice);
 
             if (responses.containsKey(choice)) {
                 Integer nb = responses.get(choice) + 1;
@@ -270,7 +284,7 @@ public class Survey {
     public void getVote(PrintStream stream, String address) {
         for (int i = 0; i < this.blockchain.size(); i++) {
             if (this.blockchain.get(i).getHash().equals(address)) {
-                stream.println(this.blockchain.get(i).decrypt(privateKey));
+                stream.println(this.blockchain.get(i).getData());
             }
         }
     }
@@ -294,13 +308,7 @@ public class Survey {
         return responses;
     }
 
-    public byte[] getPublicKey() {
-        return this.publicKey.getEncoded();
-    }
-
-    public byte[] getPrivateKey() {
-        return this.publicKey.getEncoded();
-    }
+   
 
     public void clear() {
         this.blockchain.clear();
@@ -378,13 +386,12 @@ public class Survey {
 
     public static boolean Insert(Connection conn, Survey survey) throws SQLException {
         //String value="'"+email+"','"+pseudo+"','"+password+"'";
-        String sql = "insert into surveys(question,choices,duration, public_Key, private_Key) values(?,?,?,?,?)";
+        String sql = "insert into surveys(question,choices,duration) values(?,?,?)";
         PreparedStatement preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         preparedStatement.setString(1, survey.getQuestion());
         preparedStatement.setString(2, survey.getChoices());
         preparedStatement.setInt(3, survey.getTimeMillis());
-        preparedStatement.setBytes(4, survey.getPublicKey());
-        preparedStatement.setBytes(5, survey.getPrivateKey());
+
 
         int flag = preparedStatement.executeUpdate();
 
@@ -402,4 +409,5 @@ public class Survey {
             return false;
         }
     }
+
 }

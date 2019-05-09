@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 import javax.persistence.Id;
 
 /**
@@ -41,7 +42,7 @@ public final class Block {
     private String hash;
     private String previousHash;
     private Survey survey;
-    private byte[] data;
+    private String data;
 
     public String getHash() {
         return hash;
@@ -51,12 +52,12 @@ public final class Block {
         return previousHash;
     }
 
-    public byte[] getData() {
+    public String getData() {
         return data;
     }
 
     public String getDataString() {
-        return Base64.getEncoder().encodeToString(this.data);
+        return this.data;
     }
 
     public long getTimeStamp() {
@@ -65,7 +66,7 @@ public final class Block {
 
     private final long timeStamp;
     
-    public Block(Survey survey, String address, String previousHash, byte [] data) {
+    public Block(Survey survey, String previousHash, String data) {
         this.survey = survey;
         this.data = data;
         this.previousHash = previousHash;
@@ -73,13 +74,6 @@ public final class Block {
         this.hash = calculateHash();
     }
 
-    public Block(Survey survey, String data, String previousHash, PublicKey pk) {
-        this.survey = survey;
-        this.data = encrypt(data, pk);
-        this.previousHash = previousHash;
-        this.timeStamp = new Date().getTime();
-        this.hash = calculateHash();
-    }
 
     public Survey getSurvey() {
         return survey;
@@ -89,23 +83,15 @@ public final class Block {
         this.survey = survey;
     }
 
-    public byte[] encrypt(String data, PublicKey pk) {
+
+    public String decrypt(SecretKey sk) {
+ System.out.println("DATA");
         try {
-            Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.ENCRYPT_MODE, pk);
-            return cipher.doFinal(data.getBytes());
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public String decrypt(PrivateKey pk) {
-
-        try {
-            Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.DECRYPT_MODE, pk);
-            byte[] decryptedData = cipher.doFinal(this.data);
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.DECRYPT_MODE, sk);
+              System.out.println("DATA");
+            System.out.println(Base64.getDecoder().decode(this.data));
+            byte[] decryptedData = cipher.doFinal(Base64.getDecoder().decode(this.data));
             return new String(decryptedData);
 
         } catch (Exception e) {
@@ -149,7 +135,7 @@ public final class Block {
         preparedStatement.setString(1, Integer.toString(block.getSurvey().getId()));
         preparedStatement.setString(2, block.getHash());
         preparedStatement.setString(3, block.getPreviousHash());
-        preparedStatement.setBytes(4, block.getData());
+        preparedStatement.setString(4, block.getData());
         
 
         int flag = preparedStatement.executeUpdate();
@@ -168,6 +154,10 @@ public final class Block {
             return false;
         }
     }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
     
     public static ArrayList<Block> GetBlocks(Connection conn, Survey survey) throws SQLException {
         //String value="'"+email+"','"+pseudo+"','"+password+"'";
@@ -185,9 +175,10 @@ public final class Block {
             Integer id = rs.getInt("id_block");
             String address =  rs.getString("address");
             String pAddress = rs.getString("previous_address");
-            byte [] data = rs.getBytes("vote");
+            String data = rs.getString("vote");
             
-            Block block = new Block(survey, address, pAddress, data);
+            Block block = new Block(survey, pAddress, data);
+            block.setHash(address);
             blocks.add(block);
         }
 

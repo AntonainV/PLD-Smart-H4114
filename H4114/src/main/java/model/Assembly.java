@@ -142,7 +142,16 @@ public class Assembly {
     }
 
     public void addSurvey(Survey survey) {
-        if (currentSurvey != null || currentSurvey.stat == 2) {
+       
+        if (survey == null) {
+            return;
+        }
+        else if (currentSurvey == null ) {
+            currentSurvey = survey;
+        }
+        else if (currentSurvey.stat == 2)
+        {
+            Survey.removeSurvey(currentSurvey);
             currentSurvey = survey;
         }
     }
