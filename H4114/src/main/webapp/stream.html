@@ -42,8 +42,7 @@
     var identity = 'none';
     var mode = 0;
 
-    function joinRoom(number){
-       document.getElementById("stop").disabled=false; 
+    function joinRoom(number){ 
        connectListen(number, name);
     }
 
@@ -207,9 +206,17 @@
                   console.log('Sorry, we are out of ' + state + '.');
               }
           }else if(mode === 2){
-              document.getElementById("start").disabled=true; 
-              document.getElementById("stop").disabled=true; 
-              document.getElementById("createRoom").disabled=true; 
+              switch (state) {
+                case 'State4':
+                    document.getElementById("start").disabled=true; 
+                    document.getElementById("stop").disabled=false; 
+                    document.getElementById("createRoom").disabled=true; 
+                    break;   
+                default:
+                  document.getElementById("start").disabled=true; 
+                  document.getElementById("stop").disabled=true; 
+                  document.getElementById("createRoom").disabled=true; 
+              }
           }
     }
 </script>

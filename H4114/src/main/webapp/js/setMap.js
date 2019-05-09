@@ -10,10 +10,11 @@ function createPositions(participants) {
     positions= [];
     positions.push({location: {latitude: latitude, longitude: longitude}});
     
-    var id_assembly = participants[0].id_assembly;
-    var title = participants[0].title;
-    assemblyTable.push({id_assembly,title});
-            
+    /*if(!participants){
+        var id_assembly = participants[0].id_assembly;
+        var title = participants[0].title;
+        assemblyTable.push({id_assembly,title});
+    }*/
     
     if (participants)
     {
