@@ -37,13 +37,13 @@ function start(){
             /* handle the error */
             if (error.name === 'ConstraintNotSatisfiedError') {
                 let v = constraints.video;
-                errorMsg(`The resolution ${v.width.exact}x${v.height.exact} px is not supported by your device.`);
+                //errorMsg(`The resolution ${v.width.exact}x${v.height.exact} px is not supported by your device.`);
             } else if (error.name === 'PermissionDeniedError') {
-                errorMsg('Permissions have not been granted to use your camera and ' +
+                /*errorMsg('Permissions have not been granted to use your camera and ' +
                 'microphone, you need to allow the page access to your devices in ' +
-                'order for the demo to work.');
+                'order for the demo to work.');*/
             }
-            errorMsg(`getUserMedia error: ${error.name}`, error);
+            //errorMsg(`getUserMedia error: ${error.name}`, error);
         });
     }
 }
@@ -133,11 +133,11 @@ function connectStart(number){
 }
 
 function createPeerConnection(pos,userName) {
-    errorMsg("createPeerConnection");
-    errorMsg(configuration);
+    //errorMsg("createPeerConnection");
+    //errorMsg(configuration);
     pcs[pos] = new RTCPeerConnection(configuration);
     localStream.getTracks().forEach(track => pcs[pos].addTrack(track, localStream));
-    errorMsg("createPeerConnection2");
+    //errorMsg("createPeerConnection2");
 
     pcs[pos].onicecandidate = handleICECandidateEvent(userName);
     pcs[pos].ontrack = handleTrackEvent;
@@ -203,7 +203,7 @@ function handleTrackEvent(event) {
     video.srcObject = event.streams[0];
     console.log(event.streams.length);
     console.log(document.getElementById("video").srcObject);
-    errorMsg(document.getElementById("video").srcObject.id);
+    //errorMsg(document.getElementById("video").srcObject.id);
 }
 
 function handleRemoveTrackEvent(event) {
