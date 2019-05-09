@@ -151,7 +151,7 @@ function quitAssembly()
 function initButtons()
 {
     $("#rallyDiv").remove();
-    if (!theAssembly)
+    if (theAssembly === null || jQuery.isEmptyObject(theAssembly))
     {
         var rallyDiv = document.createElement('div');
         var createRallyDiv = document.createElement('div');
