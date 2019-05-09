@@ -11,23 +11,25 @@
         
     </head>
     <body onbeforeunload="return fun()">
-        <div>
+        <div style="height: 6%; padding: 5px; vertical-align: middle">
             <a href="index.html?#">
-                <img src="./icons/return.png" alt="index" style="width:42px;height:42px;border:0;">
+                <img src="./icons/return.png" alt="index" style="height:100%;border:0;">
             </a>
+            <span id="namePart"></span>
         </div>
-        <div id="content" style="overflow-y: scroll">Content</div>
+        <div id="content" style="overflow-y: auto">
+            <span id="theMap"></span>
+            <span id="otherDiv"></span>
+        </div>
         <div class="navbar">
-            <a id="map" href="javascript:changeToMap();" class="active">Map</a>
-            <a id="view" href="javascript:changeToView();">View</a>
-            <a id="stream" href="javascript:changeToStream();">Stream</a>
-            <a id="vote" href="javascript:changeToVote();">Vote</a>
-            <a id="alert" href="javascript:changeToAlert();">Alert</a>
+            <a id="mapLink" href="javascript:changeToMap();" class="active">Map</a>
+            <a id="stream" href="javascript:changeToStream();">Video</a>
+            <a id="vote" href="javascript:changeToVote();">Sondage</a>
         </div>
         <script type="text/javascript" src="./js/javascript.js"></script>
         <script type="text/javascript" src="./js/caller.js"></script>
         <script type="text/javascript" src="./js/receiver.js"></script>
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCyfR4HiGWGxQ7CiwH4VGEh0qjaL6LYv1M"></script>
+        <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCyfR4HiGWGxQ7CiwH4VGEh0qjaL6LYv1M"></script> !-->
         <script type="text/javascript" src="js/setMap.js"></script> 
         <script type="text/javascript" src="js/jDBSCAN.js"></script>
         <script>

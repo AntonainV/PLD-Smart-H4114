@@ -57,8 +57,12 @@ function setPosition(position) {
         }
     }).done(function (data) {
         var participants = data.Participants;
-        getAssemblyUser();
-        initMap(latitude, longitude, participants);
+        console.log(theAssembly);
+        getAssemblyUser()
+        if(theAssembly == null)
+        {  initMap(latitude, longitude, participants)  ;}
+            
+        
     });
 }
 
@@ -75,9 +79,14 @@ function getAssemblyUser()
             alert("Error while sending new request");
         }
     }).done(function (data) {
-        console.log(data);
-        theAssembly = data.Assembly;
-
+        if (!data.exist) 
+        {
+            theAssembly = null;
+        }
+        else
+        {
+            theAssembly = data.Assembly;
+        }
     });
 }
 
@@ -123,17 +132,19 @@ function createAssembly() {
                 console.log("Error while sending  assembly request");
             }
         }).done(function (data) {
-            
+            console.log(data);
             if(data.created == true)
             {
                 theAssembly = data.Assembly;
                 assemblyInterested.set(theAssembly.id_assembly,theAssembly);
                 document.getElementById("createAssembly").style.display = "none";
+                initButtons();
+                //getLocalisation();
             } else {
                 $('#message').text("Ups we didn't succed to verify assembly creation");
             }
             
-            initButtons();
+            
         });
     }
 }
@@ -156,7 +167,7 @@ function quitAssembly()
 function initButtons()
 {
     $("#rallyDiv").remove();
-    if (theAssembly === null || jQuery.isEmptyObject(theAssembly))
+    if (theAssembly == null)
     {
         var rallyDiv = document.createElement('div');
         var createRallyDiv = document.createElement('div');

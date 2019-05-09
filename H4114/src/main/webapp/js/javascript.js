@@ -1,95 +1,29 @@
 
 $(document).ready(function(){
-    $('#content').load("map.html");
+    $('#theMap').load("map.html");
+    $("#namePart").html("Onglet Map");
+    $('#theMap').show();
+    getLocation();
  });
 
 function changeToMap() {
     document.getElementsByClassName("active")[0].classList.remove("active");
-    document.getElementById("map").classList.add("active");
-    $('#content').load("map.html");
-}
-
-function changeToView() {
-    document.getElementsByClassName("active")[0].classList.remove("active");
-    document.getElementById("view").classList.add("active");
-    $('#content').load("view.html");
+    document.getElementById("mapLink").classList.add("active");
+    $("#namePart").html("Onglet Map");
+    getLocation();
+    $('#theMap').show();
 }
 
 function changeToStream() {
     document.getElementsByClassName("active")[0].classList.remove("active");
     document.getElementById("stream").classList.add("active");
-    $('#content').load("stream.html");
+    $('#otherDiv').load("stream.html");
+    $('#theMap').hide();
 }
 
 function changeToVote() {
     document.getElementsByClassName("active")[0].classList.remove("active");
     document.getElementById("vote").classList.add("active");
-    $('#content').load("vote.html");
-    
-    getPseudos();
-    //getAssemblies();
-    //getParticipants();
-
+    $('#otherDiv').load("vote.html");
+    $('#theMap').hide();
 }
-
-function changeToAlert() {
-    document.getElementsByClassName("active")[0].classList.remove("active");
-    document.getElementById("alert").classList.add("active");
-    $('#content').load("alert.html");
-}
-
-
-function getAssemblies()
-{
-
-    $.ajax({
-            url: './UserServlet',
-            method: 'POST',
-            data: {
-                action: 'getAssemblies',
-            },
-            dataType: 'json',
-            error: function () {
-                console.log("GetAssemblies : Error while getting assemblies");
-            }
-        }).done(function (data) {
-           
-        });
-}
-
-function getPseudos()
-{
-   
-    $.ajax({
-            url: './UserServlet',
-            method: 'POST',
-            data: {
-                action: 'getPseudos',
-            },
-            dataType: 'json',
-            error: function () {
-                console.log("getPseudos : Error while getting pseudo");
-            }
-        }).done(function (data) {
-            console.log(data);
-        });
-}
-
-function getParticipants()
-{
-   
-    $.ajax({
-            url: './UserServlet',
-            method: 'POST',
-            data: {
-                action: 'getParticipants',
-            },
-            dataType: 'json',
-            error: function () {
-                console.log("GetParticipants : Error while getting participants");
-            }
-        }).done(function (data) {
-            console.log(data);
-        });
-}
-

@@ -61,8 +61,6 @@ public class UserServlet extends HttpServlet {
                 if(user == null)
                     break;
                 Integer id = user.getId();
-                System.out.println("In Clear");
-                System.out.println(id);
                 try {
                     conn = DBConnection.Connection();
                     String sql="delete from participants where id_user = ? ";
@@ -198,9 +196,17 @@ public class UserServlet extends HttpServlet {
                     ArrayList<Participant> participants = Participant.GetParticipants(conn);
                     JsonObject reponse = new JsonObject();
                     JsonArray jsonListe = new JsonArray();
+                    user = (User) request.getSession().getAttribute("user");
+                    if (user == null)
+                    {
+                        break;
+                    }
                     for (int i = 0; i < participants.size(); i++)
                     {
-                        jsonListe.add(participants.get(i).toJson());
+                        if (user.getId() != participants.get(i).getId())
+                        {
+                            jsonListe.add(participants.get(i).toJson());
+                        }
                        
                     }
                     reponse.add("Participants", jsonListe);
@@ -250,7 +256,6 @@ public class UserServlet extends HttpServlet {
                     participant = (Participant) request.getSession().getAttribute("participant");
                     JsonObject reponse = new JsonObject();
                     JsonObject assembly = new JsonObject();
-                    System.out.println(participant);
                     if (participant != null)
                     {
                         reponse.addProperty("exist", true);
@@ -286,7 +291,6 @@ public class UserServlet extends HttpServlet {
                     user = (User) request.getSession().getAttribute("user");
                     if(user == null)
                     {
-                        System.err.println("kkk");
                         break;
                     }
                     participant = (Participant) request.getSession().getAttribute("participant");
@@ -298,8 +302,6 @@ public class UserServlet extends HttpServlet {
                     assembly = Assembly.getAssembly(conn, Integer.parseInt(idAssembly));
                     if (isAlreadyPartAssembly || participant != null)
                     {
-                        System.out.println(user.getId());
-                        System.out.println(isAlreadyPartAssembly);
                         break;
                     }
   
@@ -326,7 +328,6 @@ public class UserServlet extends HttpServlet {
                     participate.addProperty("participate", "true");
                     joinAssembly.add("participate", participate);
                     
-                    System.out.println(participant.toJson());
                     request.getSession().setAttribute("participant", participant);
                     
                     JsonObject assemblyJ = new JsonObject();
@@ -359,13 +360,11 @@ public class UserServlet extends HttpServlet {
             {
                 
                 JsonObject getPseudo =new JsonObject();
-                System.out.println("---------------");
                 user = (User) request.getSession().getAttribute("user");
                 if (user == null)
                 {
                     break;
                 }
-                System.out.println("ooook");
                 String pseudoU = user.getPseudo();
                 
                 participant = (Participant) request.getSession().getAttribute("participant");
@@ -409,12 +408,17 @@ public class UserServlet extends HttpServlet {
                     conn = DBConnection.Connection();
                     
                     user = (User) request.getSession().getAttribute("user");
-                    System.out.println(user.toString());
-                    
 
                     participant = (Participant) request.getSession().getAttribute("participant");
+                    
+                    Gson gson=new GsonBuilder().setPrettyPrinting().create();
+                    PrintWriter out = response.getWriter() ;
+                    JsonObject reponse = new JsonObject();
                     if (participant != null)
                     {
+                        System.out.println("sdasdasdsadasfvzxc");
+                        reponse.addProperty("created", false);
+                        out.println(gson.toJson(reponse));
                         break;
                     }
                     
@@ -432,7 +436,9 @@ public class UserServlet extends HttpServlet {
                 
                     if (user == null)
                     {
-                       
+                        System.out.println("asdsadasdsdasdasdsadasfvzxc");
+                        reponse.addProperty("created", false);
+                        out.println(gson.toJson(reponse));
                         break;
                     }
                                    
@@ -447,17 +453,17 @@ public class UserServlet extends HttpServlet {
                             request.getSession().setAttribute("assembly", assembly);
                     }
                     else{
-                        
+                        System.out.println("dsdasdasdsadasfvzxc");
+                        reponse.addProperty("created", false);
+                        out.println(gson.toJson(reponse));
                         break;
                     }
                      
                    
-                    Gson gson=new GsonBuilder().setPrettyPrinting().create();
-                    PrintWriter out = response.getWriter() ;
-                    JsonObject reponse = new JsonObject();
                     if(Participant.Insert(conn, participant))
                     {
                        
+                        System.out.println("1dsasdsadasfvzxc");
                         JsonObject assemblyJ = new JsonObject();
                         reponse.addProperty("created", true);
                         assemblyJ.addProperty("id_assembly", participant.getAssembly().getId());
@@ -469,6 +475,7 @@ public class UserServlet extends HttpServlet {
                     }
                     else
                     {
+                        System.out.println("zdsdasdasdsadasfvzxc");
                         reponse.addProperty("created", false);
                     }
 
